@@ -10,19 +10,18 @@ module Postgrest
       @schema = schema
     end
 
-    def select(columns = '*')
-      Postgrest::HTTP.get(uri: uri, query: { select: columns }, headers: headers)
+    def select(columns = '*', options = {})
+      # @client.from('todos').select('*', { id: 'gt.35' })
+
+      Postgrest::HTTP.get(uri: uri, query: { select: columns }.merge(options), headers: headers)
     end
-
-    # @client.from('todos').insert([
-    #   { title: 'The Shire', completed: false },
-    #   { title: 'The Shire', completed: false },
-    # ])
-
-    # @client.from('todos').insert({ name: 'The Shire', country_id: 554 })
 
     def insert(values)
       Postgrest::HTTP.post(uri: uri, body: values, headers: headers)
     end
+
+    def update(values); end
+
+    def match(values); end
   end
 end
