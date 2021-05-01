@@ -14,11 +14,11 @@ gem 'postgrest'
 
 And then execute:
 
-$ bundle install
+`$ bundle install`
 
 Or install it yourself as:
 
-$ gem install postgrest
+`$ gem install postgrest`
 
 ## Usage
 
