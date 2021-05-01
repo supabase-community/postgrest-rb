@@ -11,7 +11,9 @@ module Postgrest
           request[key] = value
         end
 
-        request
+        headers['Content-Type'] = 'application/json'
+
+        nil
       end
 
       def get(uri:, query: {}, headers: {})
@@ -22,22 +24,41 @@ module Postgrest
           http.request(req)
         end
 
-        raise RequestError.new("#{res.code} #{res.message}") unless res.code.eql?('200')
+        data = response_is_successful?(res) ? JSON.parse(res.body) : []
 
-        JSON.parse(res.body)
+        Response.new({
+          error: !response_is_successful?(res),
+          data: data,
+          count: data.count,
+          status: res.code.to_i,
+          status_text: res.message,
+          body: query,
+        })
       end
 
       def post(uri:, body: {}, headers: {})
         res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
           req = Net::HTTP::Post.new(uri)
-          req.set_form_data(body)
+          req.body = body.to_json
+          req.content_type = 'application/json'
           set_request_headers(req, headers)
           http.request(req)
         end
 
-        raise RequestError.new("#{res.code} #{res.message}") unless res.code.eql?('201')
+        Response.new({
+          error: !response_is_successful?(res),
+          data: res.body,
+          count: nil,
+          status: res.code.to_i,
+          status_text: res.message,
+          body: body,
+        })
+      end
 
-        body
+      private
+
+      def response_is_successful?(response)
+        response.class.ancestors.include?(Net::HTTPSuccess)
       end
     end
   end

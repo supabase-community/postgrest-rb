@@ -1,8 +1,8 @@
-# Postgrest
+# PostgREST
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/postgrest`. To experiment with that code, run `bin/console` for an interactive prompt.
+Ruby client for [PostgREST](https://postgrest.org/)
 
-TODO: Delete this and the text above, and describe your gem
+This gem is under development, any help is welcome :muscle:
 
 ## Installation
 
@@ -14,15 +14,71 @@ gem 'postgrest'
 
 And then execute:
 
-    $ bundle install
+$ bundle install
 
 Or install it yourself as:
 
-    $ gem install postgrest
+$ gem install postgrest
 
 ## Usage
 
-TODO: Write usage instructions here
+### Configuration
+
+```ruby
+db = Postgrest::Client.new(url: url, headers: headers, schema: schema)
+```
+
+### Selecting
+
+```ruby
+# Basic select
+
+db.from('todos').select('*')
+
+<Postgrest::Response:0x0000556745caa420
+  @body={:select=>"*"},
+  @count=1,
+  @data=[{"id"=>1, "title"=>"Go to the gym", "completed"=>false}],
+  @error=true,
+  @status=200,
+  @status_text="OK">
+
+# Selecting just one or more fields
+
+db.from('todos').select('title, completed')
+
+<Postgrest::Response:0x0000556745590770
+  @body={:select=>"title, completed"},
+  @count=1,
+  @data=[{"title"=>"Go to the gym", "completed"=>false}],
+  @error=true,
+  @status=200,
+  @status_text="OK">
+
+```
+
+### Inserting
+
+```ruby
+db.from('todos').insert({ title: 'Go to the gym', completed: false })
+
+<Postgrest::Response:0x00005567458aebf0 @body={:title=>"Go to the gym", :completed=>false}, @count=nil, @data="", @error=false, @status=201, @status_text="Created">
+
+# Inserting multiple rows at once
+db.from('todos').insert([
+  { title: 'Go to the gym', completed: false },
+  { title: 'Walk in the park', completed: true },
+])
+
+<Postgrest::Response:0x0000556745cdd118
+  @body=[{:title=>"Go to the gym", :completed=>false}, {:title=>"Walk in the park", :completed=>true}],
+  @count=nil,
+  @data="",
+  @error=true,
+  @status=201,
+  @status_text="Created">
+
+```
 
 ## Development
 
@@ -32,8 +88,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/postgrest.
-
+Bug reports and pull requests are welcome on GitHub at https://github.com/marcelobarreto/postgrest.
 
 ## License
 

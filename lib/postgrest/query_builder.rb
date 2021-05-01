@@ -13,8 +13,8 @@ module Postgrest
     end
 
     # @client.from('todos').insert([
-    #   { name: 'The Shire', country_id: 554 },
-    #   { name: 'The Shire', country_id: 554 },
+    #   { title: 'The Shire', completed: false },
+    #   { title: 'The Shire', completed: false },
     # ])
 
     # @client.from('todos').insert({ name: 'The Shire', country_id: 554 })
