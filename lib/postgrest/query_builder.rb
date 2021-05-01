@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Postgrest
   class QueryBuilder
     attr_accessor :uri, :headers, :schema

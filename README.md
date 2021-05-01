@@ -1,5 +1,13 @@
 # PostgREST
 
+## Status
+
+[![Build Status](https://api.travis-ci.org/marcelobarreto/postgrest.svg?branch=master)](https://travis-ci.org/marcelobarreto/postgrest)
+[![Code Climate](https://codeclimate.com/github/marcelobarreto/postgrest.svg)](https://codeclimate.com/github/marcelobareto/postgrest)
+[![Code Climate](https://codeclimate.com/github/marcelobarreto/postgrest/coverage.svg)](https://codeclimate.com/github/marcelobarreto/postgrest)
+[![Ruby Style Guide](https://img.shields.io/badge/code_style-rubocop-brightgreen.svg)](https://github.com/rubocop/rubocop)
+[![RubyGems](http://img.shields.io/gem/dt/postgrest.svg?style=flat)](http://rubygems.org/gems/postgrest)
+
 Ruby client for [PostgREST](https://postgrest.org/)
 
 This gem is under development, any help are welcome :muscle:

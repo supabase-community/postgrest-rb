@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Postgrest
   class Client
     DEFAULT_SCHEMA = 'public'

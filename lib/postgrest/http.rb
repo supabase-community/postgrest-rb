@@ -27,13 +27,13 @@ module Postgrest
         data = response_is_successful?(res) ? JSON.parse(res.body) : []
 
         Response.new({
-          error: !response_is_successful?(res),
-          data: data,
-          count: data.count,
-          status: res.code.to_i,
-          status_text: res.message,
-          body: query,
-        })
+                       error: !response_is_successful?(res),
+                       data: data,
+                       count: data.count,
+                       status: res.code.to_i,
+                       status_text: res.message,
+                       body: query
+                     })
       end
 
       def post(uri:, body: {}, headers: {})
@@ -46,13 +46,13 @@ module Postgrest
         end
 
         Response.new({
-          error: !response_is_successful?(res),
-          data: res.body,
-          count: nil,
-          status: res.code.to_i,
-          status_text: res.message,
-          body: body,
-        })
+                       error: !response_is_successful?(res),
+                       data: res.body,
+                       count: nil,
+                       status: res.code.to_i,
+                       status_text: res.message,
+                       body: body
+                     })
       end
 
       private
