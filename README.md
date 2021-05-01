@@ -6,7 +6,7 @@
 [![Code Climate](https://codeclimate.com/github/marcelobarreto/postgrest-rb.svg)](https://codeclimate.com/github/marcelobareto/postgrest-rb)
 [![Code Climate](https://codeclimate.com/github/marcelobarreto/postgrest-rb/coverage.svg)](https://codeclimate.com/github/marcelobarreto/postgrest-rb)
 [![Ruby Style Guide](https://img.shields.io/badge/code_style-rubocop-brightgreen.svg)](https://github.com/rubocop/rubocop)
-[![RubyGems](http://img.shields.io/gem/dt/postgrest-rb.svg?style=flat)](http://rubygems.org/gems/postgrest-rb)
+[![RubyGems](http://img.shields.io/gem/dt/postgrest.svg?style=flat)](http://rubygems.org/gems/postgrest)
 
 Ruby client for [PostgREST](https://postgrest.org/)
 
