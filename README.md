@@ -2,7 +2,7 @@
 
 Ruby client for [PostgREST](https://postgrest.org/)
 
-This gem is under development, any help is welcome :muscle:
+This gem is under development, any help are welcome :muscle:
 
 ## Installation
 
