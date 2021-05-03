@@ -5,83 +5,113 @@ require 'json'
 
 module Postgrest
   class HTTP
-    class << self
-      def set_request_headers(request, headers = {})
-        headers.each do |key, value|
-          request[key] = value
-        end
+    METHODS = {
+      get: Net::HTTP::Get,
+      post: Net::HTTP::Post,
+      put: Net::HTTP::Put,
+      delete: Net::HTTP::Delete
+    }.freeze
 
-        request['Content-Type'] = 'application/json'
+    attr_reader :request, :response, :query, :body, :headers, :method, :uri
 
-        # count?: null | 'exact' | 'planned' | 'estimated'
-        # returning?: 'minimal' | 'representation'
+    def initialize(uri:, query: {}, body: {}, headers: {}, method: :get)
+      @uri = uri
+      @query = query
+      @body = body
+      @headers = headers
+      @method = method
+      @response = nil
+      @request = nil
 
-        prefer = ['return=representation', 'resolution=merge-duplicates', 'count=exact']
-        request['Prefer'] = prefer.join(',')
+      prepare
+    end
 
-        nil
+    def call
+      @response = Net::HTTP.start(request.uri.hostname, request.uri.port, use_ssl: use_ssl?) do |http|
+        http.request(request)
       end
 
-      def get(uri:, query: {}, headers: {})
-        response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
-          uri.query = URI.encode_www_form(query)
-          req = Net::HTTP::Get.new(uri)
-          set_request_headers(req, headers)
-          http.request(req)
-        end
+      switch_response
+    end
 
-        get_response(response: response, body: query)
+    alias execute call
+
+    private
+
+    def prepare
+      uri.query = URI.encode_www_form(query)
+      @request = METHODS[method].new(uri)
+      @request.body = body.to_json
+      @request.content_type = 'application/json'
+      set_request_headers
+
+      @request
+    end
+
+    def switch_response
+      case request.method
+      when 'GET'
+        get_response # > Responses::GetResponse.new
+      when 'POST'
+        post_response # > Responses::PostResponse.new
+      when 'DELETE'
+        get_response # > Responses::DeleteResponse.new
+      when 'PUT'
+        post_response # > Responses::PutResponse.new
       end
+    end
 
-      def post(uri:, body: {}, headers: {})
-        response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
-          req = Net::HTTP::Post.new(uri)
-          req.body = body.to_json
-          req.content_type = 'application/json'
-          set_request_headers(req, headers)
-          http.request(req)
-        end
+    def use_ssl?
+      return unless request
 
-        post_response(response: response, body: body)
-      end
+      request.uri.scheme == 'https'
+    end
 
-      private
+    def set_request_headers
+      headers.each {|key, value| request[key] = value }
+      request['User-Agent'] = 'PostgREST Ruby Client'
 
-      def response_is_successful?(response)
-        response.class.ancestors.include?(Net::HTTPSuccess)
-      end
+      nil
+    end
 
-      def parse_post_response(response)
-        return unless response_is_successful?(response)
+    def response_is_successful?
+      response.class.ancestors.include?(Net::HTTPSuccess)
+    end
 
-        body = response.body.empty? ? '{}' : response.body
+    def parse_post_response
+      return unless response_is_successful?
 
-        JSON.parse(body)
-      end
+      JSON.parse(response.body.empty? ? '{}' : response.body)
+    end
 
-      def get_response(response:, body:)
-        data = response_is_successful?(response) ? JSON.parse(response.body) : []
+    def get_response
+      data = response_is_successful? ? JSON.parse(response.body) : []
 
-        Response.new({
-                       error: !response_is_successful?(response),
-                       data: data,
-                       count: data.count,
-                       status: response.code.to_i,
-                       status_text: response.message,
-                       body: body
-                     })
-      end
+      response_params = {
+        error: !response_is_successful?,
+        data: data,
+        count: data.count,
+        status: response.code.to_i,
+        status_text: response.message,
+        body: request.uri.query
+      }
 
-      def post_response(response:, body:)
-        Response.new({
-                       error: !response_is_successful?(response),
-                       data: parse_post_response(response),
-                       count: nil,
-                       status: response.code.to_i,
-                       status_text: response.message,
-                       body: body
-                     })
-      end
+      Response.new(response_params)
+    end
+
+    def post_response
+      data = parse_post_response
+
+      response_params = {
+        error: !response_is_successful?,
+        data: data,
+        count: data.count,
+        status: response.code.to_i,
+        status_text: response.message,
+        body: JSON.parse(response.body)
+      }
+
+      Response.new(response_params)
     end
   end
 end
