@@ -58,19 +58,6 @@ module Postgrest
       request
     end
 
-    def switch_response
-      case request.method
-      when 'GET'
-        Responses::GetResponse.new(request, response)
-      when 'POST'
-        Responses::PostResponse.new(request, response)
-      when 'DELETE'
-        Responses::DeleteResponse.new(request, response)
-      when 'PUT'
-        Responses::PutResponse.new(request, response)
-      end
-    end
-
     def use_ssl?
       uri.scheme == 'https'
     end
