@@ -16,18 +16,23 @@ module Postgrest
 
     def initialize(uri:, query: {}, body: {}, headers: {}, method: :get)
       @uri = uri
-      @query = query
       @body = body
       @headers = headers
       @method = method
       @response = nil
       @request = nil
 
-      prepare
+      uri.query = URI.encode_www_form(query)
+      # prepare
+    end
+
+    def update_query_params(new_value)
+      @uri.query = URI.encode_www_form(new_value)
     end
 
     def call
-      @response = Net::HTTP.start(request.uri.hostname, request.uri.port, use_ssl: use_ssl?) do |http|
+      @response = Net::HTTP.start(uri.host, uri.port, use_ssl: use_ssl?) do |http|
+        @request = create_request
         http.request(request)
       end
 
@@ -38,14 +43,13 @@ module Postgrest
 
     private
 
-    def prepare
-      uri.query = URI.encode_www_form(query)
-      @request = METHODS[method].new(uri)
-      @request.body = body.to_json
-      @request.content_type = 'application/json'
-      set_request_headers
+    def create_request
+      request = METHODS[method].new(uri)
+      request.body = body.to_json
+      request.content_type = 'application/json'
+      set_request_headers(request)
 
-      @request
+      request
     end
 
     def switch_response
@@ -62,12 +66,10 @@ module Postgrest
     end
 
     def use_ssl?
-      return unless request
-
-      request.uri.scheme == 'https'
+      uri.scheme == 'https'
     end
 
-    def set_request_headers
+    def set_request_headers(request)
       headers.each {|key, value| request[key] = value }
       request['User-Agent'] = 'PostgREST Ruby Client'
 
@@ -75,7 +77,7 @@ module Postgrest
     end
 
     def response_is_successful?
-      response.class.ancestors.include?(Net::HTTPSuccess)
+      response.is_a? Net::HTTPSuccess
     end
 
     def parse_post_response

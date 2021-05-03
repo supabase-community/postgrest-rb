@@ -3,14 +3,14 @@
 module Postgrest
   module Builders
     class BaseBuilder
-      attr_accessor :request
+      attr_reader :http
 
-      def initialize(request)
-        @request = request
+      def initialize(http)
+        @http = http
       end
 
       def call
-        request.call
+        http.call
       end
 
       alias execute call
