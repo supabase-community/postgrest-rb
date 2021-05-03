@@ -3,8 +3,20 @@
 require 'postgrest/version'
 require 'postgrest/http'
 require 'postgrest/client'
-require 'postgrest/query_builder'
+
+# Builders
+require 'postgrest/builders/base_builder'
+require 'postgrest/builders/query_builder'
+require 'postgrest/builders/filter_builder'
+
+# Responses
+
 require 'postgrest/response'
+require 'postgrest/responses/get_response'
+require 'postgrest/responses/post_response'
+require 'postgrest/responses/put_response'
+require 'postgrest/responses/delete_response'
+
 
 module Postgrest
   class MissingTableError < StandardError; end
