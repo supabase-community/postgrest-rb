@@ -41,52 +41,43 @@ db = Postgrest::Client.new(url: url, headers: headers, schema: schema)
 ```ruby
 # Basic select
 
-db.from('todos').select('*')
-
-<Postgrest::Response:0x0000556745caa420
-  @body={:select=>"*"},
-  @count=1,
-  @data=[{"id"=>1, "title"=>"Go to the gym", "completed"=>false}],
-  @error=true,
-  @status=200,
-  @status_text="OK">
+db.from('todos').select('*').execute
+# or just db.from('todos').select
 
 # Selecting just one or more fields
+db.from('todos').select(:title, :completed).execute
 
-db.from('todos').select('title, completed')
+```
 
-<Postgrest::Response:0x0000556745590770
-  @body={:select=>"title, completed"},
-  @count=1,
-  @data=[{"title"=>"Go to the gym", "completed"=>false}],
-  @error=true,
-  @status=200,
-  @status_text="OK">
+### Querying
 
+```ruby
+db.from('todos').select('*').eq(id: 100).execute
+
+db.from('todos').select('*').neq(id: 100).execute
 ```
 
 ### Inserting
 
 ```ruby
-db.from('todos').insert({ title: 'Go to the gym', completed: false })
+db.from('todos').insert({ title: 'Go to the gym', completed: false }).execute
 
-<Postgrest::Response:0x00005567458aebf0 @body={:title=>"Go to the gym", :completed=>false}, @count=nil, @data="", @error=false, @status=201, @status_text="Created">
+db.from('todos').upsert({ id: 1, title: 'Ok, I wont go to the gym', completed: true }).execute
+
 
 # Inserting multiple rows at once
 db.from('todos').insert([
   { title: 'Go to the gym', completed: false },
   { title: 'Walk in the park', completed: true },
-])
-
-<Postgrest::Response:0x0000556745cdd118
-  @body=[{:title=>"Go to the gym", :completed=>false}, {:title=>"Walk in the park", :completed=>true}],
-  @count=nil,
-  @data="",
-  @error=true,
-  @status=201,
-  @status_text="Created">
+]).execute
 
 ```
+
+### Updating
+
+### Deleting
+
+## Responses
 
 ## Development
 

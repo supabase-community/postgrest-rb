@@ -20,11 +20,10 @@ module Postgrest
           rescue StandardError
             []
           end
-          word = inverse_next ? "n#{method_name}" : method_name
 
+          word = inverse_next ? "not.#{method_name}" : method_name
           @inverse_next = false
           values.each { |key, value| query << [key, "#{word}.#{value}"] }
-
           http.update_query_params(query)
 
           self

@@ -35,7 +35,7 @@ module Postgrest
       def params
         {
           query: request.uri.query,
-          body: reequest.body
+          body: JSON.parse(request.body)
         }
       end
     end

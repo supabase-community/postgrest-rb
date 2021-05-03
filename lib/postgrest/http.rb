@@ -17,8 +17,8 @@ module Postgrest
       post: Responses::PostResponse,
       put: Responses::PutResponse,
       delete: Responses::DeleteResponse,
-      options: Responses::GetResponse, # ?
-    }
+      options: Responses::GetResponse # ?
+    }.freeze
 
     attr_reader :request, :response, :query, :body, :headers, :http_method, :uri
 
@@ -53,7 +53,7 @@ module Postgrest
       request = METHODS[http_method].new(uri)
       request.body = body.to_json
       request.content_type = 'application/json'
-      set_request_headers(request)
+      add_headers(request)
 
       request
     end
@@ -62,8 +62,8 @@ module Postgrest
       uri.scheme == 'https'
     end
 
-    def set_request_headers(request)
-      headers.each {|key, value| request[key] = value }
+    def add_headers(request)
+      headers.each { |key, value| request[key] = value }
       request['User-Agent'] = 'PostgREST Ruby Client'
 
       nil
