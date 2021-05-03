@@ -1,8 +1,8 @@
+# frozen_string_literal: true
+
 module Postgrest
   module Responses
-    class DeleteResponse
-      def initialize
-      end
+    class DeleteResponse < BaseResponse
     end
   end
 end

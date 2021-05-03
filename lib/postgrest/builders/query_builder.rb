@@ -14,7 +14,7 @@ module Postgrest
       def select(*columns, extra_headers: {})
         columns.compact!
         columns = ['*'] if columns.length.zero?
-        request = HTTP.new(uri: uri, query: { select: columns.join(',') }, headers: headers)
+        request = HTTP.new(uri: uri, query: { select: columns.join(',') }, headers: headers.merge(extra_headers))
 
         FilterBuilder.new(request)
       end
@@ -25,21 +25,21 @@ module Postgrest
 
       def upsert(values, extra_headers: {})
         extra_headers[:Prefer] ||= 'return=representation,resolution=merge-duplicates'
-        request = HTTP.new(uri: uri, body: values, method: :post, headers: headers.merge(extra_headers))
+        request = HTTP.new(uri: uri, body: values, http_method: :post, headers: headers.merge(extra_headers))
 
         BaseBuilder.new(request)
       end
 
       def update(values)
         extra_headers[:Prefer] ||= 'return=representation'
-        request = HTTP.new(uri: uri, body: values, method: :put, headers: headers.merge(extra_headers))
+        request = HTTP.new(uri: uri, body: values, http_method: :put, headers: headers.merge(extra_headers))
 
         FilterBuilder.new(request)
       end
 
       def delete(extra_headers: {})
         extra_headers[:Prefer] ||= 'return=representation'
-        request = HTTP.new(uri: uri, query: {}, method: :delete, headers: headers.merge(extra_headers))
+        request = HTTP.new(uri: uri, query: {}, http_method: :delete, headers: headers.merge(extra_headers))
 
         FilterBuilder.new(request)
       end

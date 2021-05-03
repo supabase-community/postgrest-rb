@@ -1,8 +1,8 @@
+# frozen_string_literal: true
+
 module Postgrest
   module Responses
-    class GetResponse
-      def initialize
-      end
+    class GetResponse < BaseResponse
     end
   end
 end

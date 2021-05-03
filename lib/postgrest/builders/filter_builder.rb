@@ -15,7 +15,11 @@ module Postgrest
         ilike fts plfts phfts wfts
       ].each do |method_name|
         define_method(method_name) do |values|
-          query = URI.decode_www_form(http.uri.query) rescue []
+          query = begin
+            URI.decode_www_form(http.uri.query)
+          rescue StandardError
+            []
+          end
           word = inverse_next ? "n#{method_name}" : method_name
 
           @inverse_next = false

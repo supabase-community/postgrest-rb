@@ -12,13 +12,21 @@ module Postgrest
       delete: Net::HTTP::Delete
     }.freeze
 
-    attr_reader :request, :response, :query, :body, :headers, :method, :uri
+    RESPONSES = {
+      get: Responses::GetResponse,
+      post: Responses::PostResponse,
+      put: Responses::PutResponse,
+      delete: Responses::DeleteResponse,
+      options: Responses::GetResponse, # ?
+    }
 
-    def initialize(uri:, query: {}, body: {}, headers: {}, method: :get)
+    attr_reader :request, :response, :query, :body, :headers, :http_method, :uri
+
+    def initialize(uri:, query: {}, body: {}, headers: {}, http_method: :get)
       @uri = uri
       @body = body
       @headers = headers
-      @method = method
+      @http_method = http_method
       @response = nil
       @request = nil
 
@@ -35,15 +43,14 @@ module Postgrest
         http.request(request)
       end
 
-      switch_response
+      RESPONSES[http_method].new(request, response)
     end
-
     alias execute call
 
     private
 
     def create_request
-      request = METHODS[method].new(uri)
+      request = METHODS[http_method].new(uri)
       request.body = body.to_json
       request.content_type = 'application/json'
       set_request_headers(request)
@@ -54,13 +61,13 @@ module Postgrest
     def switch_response
       case request.method
       when 'GET'
-        get_response # > Responses::GetResponse.new
+        Responses::GetResponse.new(request, response)
       when 'POST'
-        post_response # > Responses::PostResponse.new
+        Responses::PostResponse.new(request, response)
       when 'DELETE'
-        get_response # > Responses::DeleteResponse.new
+        Responses::DeleteResponse.new(request, response)
       when 'PUT'
-        post_response # > Responses::PutResponse.new
+        Responses::PutResponse.new(request, response)
       end
     end
 
@@ -73,46 +80,6 @@ module Postgrest
       request['User-Agent'] = 'PostgREST Ruby Client'
 
       nil
-    end
-
-    def response_is_successful?
-      response.is_a? Net::HTTPSuccess
-    end
-
-    def parse_post_response
-      return unless response_is_successful?
-
-      JSON.parse(response.body.empty? ? '{}' : response.body)
-    end
-
-    def get_response
-      data = response_is_successful? ? JSON.parse(response.body) : []
-
-      response_params = {
-        error: !response_is_successful?,
-        data: data,
-        count: data.count,
-        status: response.code.to_i,
-        status_text: response.message,
-        body: request.uri.query
-      }
-
-      Response.new(response_params)
-    end
-
-    def post_response
-      data = parse_post_response
-
-      response_params = {
-        error: !response_is_successful?,
-        data: data,
-        count: data.count,
-        status: response.code.to_i,
-        status_text: response.message,
-        body: JSON.parse(response.body)
-      }
-
-      Response.new(response_params)
     end
   end
 end

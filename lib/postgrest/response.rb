@@ -2,15 +2,40 @@
 
 module Postgrest
   class Response
-    attr_reader :error, :data, :count, :status, :status_text, :body
+    attr_reader :request, :response
 
-    def initialize(params = {})
-      @error = params[:error]
-      @data = params[:data]
-      @count = params[:count]
-      @status = params[:status]
-      @status_text = params[:status_text]
-      @body = params[:body]
+    def initialize(request, response)
+      @request = request
+      @response = response
+      @data = data
+    end
+
+    def error
+      !response.is_a?(Net::HTTPSuccess)
+    end
+
+    def count
+      data.count
+    end
+
+    def status
+      response.code.to_i
+    end
+
+    def status_text
+      response.message
+    end
+
+    def data
+      error ? [] : JSON.parse(response.body)
+    end
+    alias as_json data
+
+    def params
+      {
+        query: request.uri.query,
+        body: reequest.body
+      }
     end
   end
 end

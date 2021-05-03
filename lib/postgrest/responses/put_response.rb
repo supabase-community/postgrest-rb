@@ -1,8 +1,8 @@
+# frozen_string_literal: true
+
 module Postgrest
   module Responses
-    class PutResponse
-      def initialize
-      end
+    class PutResponse < BaseResponse
     end
   end
 end
