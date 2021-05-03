@@ -23,7 +23,6 @@ module Postgrest
       @request = nil
 
       uri.query = URI.encode_www_form(query)
-      # prepare
     end
 
     def update_query_params(new_value)
