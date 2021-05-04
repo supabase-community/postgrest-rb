@@ -6,7 +6,7 @@
 [![Code Climate](https://codeclimate.com/github/marcelobarreto/postgrest-rb.svg)](https://codeclimate.com/github/marcelobareto/postgrest-rb)
 [![Code Climate](https://codeclimate.com/github/marcelobarreto/postgrest-rb/coverage.svg)](https://codeclimate.com/github/marcelobarreto/postgrest-rb)
 [![Ruby Style Guide](https://img.shields.io/badge/code_style-rubocop-brightgreen.svg)](https://github.com/rubocop/rubocop)
-[![RubyGems](http://img.shields.io/gem/dt/postgrest.svg?style=flat)](http://rubygems.org/gems/postgrest)
+[![RubyGems](https://img.shields.io/gem/dt/postgrest.svg?style=flat)](https://rubygems.org/gems/postgrest)
 
 Ruby client for [PostgREST](https://postgrest.org/)
 
@@ -41,51 +41,80 @@ db = Postgrest::Client.new(url: url, headers: headers, schema: schema)
 ```ruby
 # Basic select
 
-db.from('todos').select('*')
+db.from('todos').select('*').execute
+# or just db.from('todos').select
 
-<Postgrest::Response:0x0000556745caa420
-  @body={:select=>"*"},
-  @count=1,
-  @data=[{"id"=>1, "title"=>"Go to the gym", "completed"=>false}],
-  @error=true,
-  @status=200,
-  @status_text="OK">
+#<Postgrest::Responses::GetResponse GET OK data=[{"id"=>1, "title"=>"foo", "completed"=>false}, {"id"=>2, "title"=>"foo", "completed"=>false}]>
 
 # Selecting just one or more fields
+db.from('todos').select(:title).execute
 
-db.from('todos').select('title, completed')
+#<Postgrest::Responses::GetResponse GET OK data=[{"title"=>"foo"}, {"title"=>"foo"}]>
 
-<Postgrest::Response:0x0000556745590770
-  @body={:select=>"title, completed"},
-  @count=1,
-  @data=[{"title"=>"Go to the gym", "completed"=>false}],
-  @error=true,
-  @status=200,
-  @status_text="OK">
+```
 
+### Querying
+
+```ruby
+db.from('todos').select('*').eq(id: 100).execute
+#<Postgrest::Responses::GetResponse GET OK data=[{"id" => 100, "title"=>"foo", "completed" => true}}]>
+
+
+db.from('todos').select('*').neq(id: 100).execute
+#<Postgrest::Responses::GetResponse GET OK data=[{"id" => 101, "title"=>"foo", "completed" => true}}]>
 ```
 
 ### Inserting
 
 ```ruby
-db.from('todos').insert({ title: 'Go to the gym', completed: false })
+db.from('todos').insert(title: 'Go to the gym', completed: false).execute
 
-<Postgrest::Response:0x00005567458aebf0 @body={:title=>"Go to the gym", :completed=>false}, @count=nil, @data="", @error=false, @status=201, @status_text="Created">
+#<Postgrest::Responses::PostResponse POST Created data=[{"id"=>1, "title"=>"Go to the gym", "completed"=>false}]>
+
+db.from('todos').upsert(id: 1, title: 'Ok, I wont go to the gym', completed: true).execute
+
+#<Postgrest::Responses::PostResponse POST Created data=[{"id"=>1, "title"=>"Ok, I wont go to the gym", "completed"=>true}]>
 
 # Inserting multiple rows at once
 db.from('todos').insert([
   { title: 'Go to the gym', completed: false },
   { title: 'Walk in the park', completed: true },
-])
+]).execute
 
-<Postgrest::Response:0x0000556745cdd118
-  @body=[{:title=>"Go to the gym", :completed=>false}, {:title=>"Walk in the park", :completed=>true}],
-  @count=nil,
-  @data="",
-  @error=true,
-  @status=201,
-  @status_text="Created">
+#<Postgrest::Responses::PostResponse POST Created data=[{"id"=>110, "title"=>"Go to the gym", "completed"=>false}, {"id"=>111, "title"=>"Walk in the park", "completed"=>true}]>
 
+```
+
+### Updating
+
+```ruby
+
+# Query before update
+
+db.from('todos').update(title: 'foobar').eq(id: 109).execute
+
+#<Postgrest::Responses::PatchResponse PATCH OK data=[{"id"=>106, "title"=>"foo", "completed"=>false}]>
+
+# Update all rows
+
+db.from('todos').update(title: 'foobar').execute
+
+#<Postgrest::Responses::PatchResponse PATCH OK data=[{"id"=>107, "title"=>"foobar", "completed"=>false}, {"id"=>1, "title"=>"foobar", "completed"=>true}, {"id"=>110, "title"=>"foobar", "completed"=>false}, {"id"=>111, "title"=>"foobar", "completed"=>true}, {"id"=>106, "title"=>"foobar", "completed"=>false}]>
+```
+
+### Deleting
+
+```ruby
+# Querying before delete
+
+db.from('todos').delete.eq(id: 109).execute
+#<Postgrest::Responses::DeleteResponse DELETE OK data=[{"id"=>109, "title"=>"Go to the gym", "completed"=>false}]>
+
+# OR deleting everything
+
+db.from('todos').delete.execute
+
+#<Postgrest::Responses::DeleteResponse DELETE OK data=[{"id"=>110, "title"=>"Go to the gym", "completed"=>false}, {"id"=>111, "title"=>"Go to the gym", "completed"=>false}]>
 ```
 
 ## Development

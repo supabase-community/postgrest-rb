@@ -5,83 +5,80 @@ require 'json'
 
 module Postgrest
   class HTTP
-    class << self
-      def set_request_headers(request, headers = {})
-        headers.each do |key, value|
-          request[key] = value
-        end
+    METHODS = {
+      get: Net::HTTP::Get,
+      post: Net::HTTP::Post,
+      patch: Net::HTTP::Patch,
+      put: Net::HTTP::Patch,
+      delete: Net::HTTP::Delete
+    }.freeze
 
-        request['Content-Type'] = 'application/json'
+    RESPONSES = {
+      get: Responses::GetResponse,
+      post: Responses::PostResponse,
+      put: Responses::PatchResponse,
+      patch: Responses::PatchResponse,
+      delete: Responses::DeleteResponse,
+      options: Responses::GetResponse # ?
+    }.freeze
 
-        # count?: null | 'exact' | 'planned' | 'estimated'
-        # returning?: 'minimal' | 'representation'
+    USER_AGENT = 'PostgREST Ruby Client'
 
-        prefer = ['return=representation', 'resolution=merge-duplicates', 'count=exact']
-        request['Prefer'] = prefer.join(',')
+    attr_reader :request, :response, :query, :body, :headers, :http_method, :uri
 
-        nil
+    def initialize(uri:, query: {}, body: {}, headers: {}, http_method: :get)
+      @uri = uri
+      @body = body
+      @headers = headers
+      @http_method = http_method.to_sym
+      @response = nil
+      @request = nil
+
+      uri.query = URI.encode_www_form(query)
+    end
+
+    def update_query_params(new_value = {})
+      @uri.query = URI.encode_www_form(new_value)
+    rescue NoMethodError
+      @uri.query
+    end
+
+    def call
+      raise InvalidHTTPMethod unless valid_http_method?
+
+      @response = Net::HTTP.start(uri.host, uri.port, use_ssl: use_ssl?) do |http|
+        @request = create_request
+        http.request(request)
       end
 
-      def get(uri:, query: {}, headers: {})
-        response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
-          uri.query = URI.encode_www_form(query)
-          req = Net::HTTP::Get.new(uri)
-          set_request_headers(req, headers)
-          http.request(req)
-        end
+      RESPONSES[http_method].new(request, response)
+    end
+    alias execute call
 
-        get_response(response: response, body: query)
-      end
+    private
 
-      def post(uri:, body: {}, headers: {})
-        response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
-          req = Net::HTTP::Post.new(uri)
-          req.body = body.to_json
-          req.content_type = 'application/json'
-          set_request_headers(req, headers)
-          http.request(req)
-        end
+    def create_request
+      request = METHODS[http_method].new(uri)
+      request.body = body.to_json
+      request.content_type = 'application/json'
+      add_headers(request)
 
-        post_response(response: response, body: body)
-      end
+      request
+    end
 
-      private
+    def use_ssl?
+      uri.scheme == 'https'
+    end
 
-      def response_is_successful?(response)
-        response.class.ancestors.include?(Net::HTTPSuccess)
-      end
+    def add_headers(request)
+      headers.each { |key, value| request[key] = value }
+      request['User-Agent'] = USER_AGENT
 
-      def parse_post_response(response)
-        return unless response_is_successful?(response)
+      nil
+    end
 
-        body = response.body.empty? ? '{}' : response.body
-
-        JSON.parse(body)
-      end
-
-      def get_response(response:, body:)
-        data = response_is_successful?(response) ? JSON.parse(response.body) : []
-
-        Response.new({
-                       error: !response_is_successful?(response),
-                       data: data,
-                       count: data.count,
-                       status: response.code.to_i,
-                       status_text: response.message,
-                       body: body
-                     })
-      end
-
-      def post_response(response:, body:)
-        Response.new({
-                       error: !response_is_successful?(response),
-                       data: parse_post_response(response),
-                       count: nil,
-                       status: response.code.to_i,
-                       status_text: response.message,
-                       body: body
-                     })
-      end
+    def valid_http_method?
+      METHODS.keys.include?(http_method)
     end
   end
 end
