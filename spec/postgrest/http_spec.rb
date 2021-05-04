@@ -41,10 +41,10 @@ RSpec.describe Postgrest::HTTP do
     end
 
     context 'when request is a PUT' do
-      let(:http_method) { :put }
+      let(:http_method) { :patch }
       let(:result) { subject.send(:create_request) }
 
-      it { expect(result).to be_a(Net::HTTP::Put) }
+      it { expect(result).to be_a(Net::HTTP::Patch) }
       it { expect(result.uri).to eq(uri) }
       it { expect(result['foo']).to eq('123') }
     end
