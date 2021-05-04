@@ -1,2 +1,4 @@
-RSpec.describe Postgrest::Builders::QueryBuilder do
+module Postgrest
+  RSpec.describe Builders::QueryBuilder do
+  end
 end

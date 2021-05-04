@@ -1,2 +1,4 @@
-RSpec.describe Postgrest::Responses::DeleteResponse do
+module Postgrest
+  RSpec.describe Responses::DeleteResponse do
+  end
 end
