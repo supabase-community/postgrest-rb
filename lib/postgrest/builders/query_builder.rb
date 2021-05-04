@@ -3,7 +3,7 @@
 module Postgrest
   module Builders
     class QueryBuilder
-      attr_accessor :uri, :headers, :schema
+      attr_reader :uri, :headers, :schema
 
       def initialize(url:, headers:, schema:)
         @uri = URI(url)
