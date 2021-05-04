@@ -117,17 +117,17 @@ RSpec.describe Postgrest::HTTP do
     end
   end
 
-  describe '#has_valid_http_method?' do
+  describe '#valid_http_method?' do
     context 'when method is valid' do
       subject { described_class.new(uri: uri, http_method: :get)}
 
-      it { expect(subject.send(:has_valid_http_method?)).to eq(true) }
+      it { expect(subject.send(:valid_http_method?)).to eq(true) }
     end
 
     context 'when method is invalid' do
       subject { described_class.new(uri: uri, http_method: :foo)}
 
-      it { expect(subject.send(:has_valid_http_method?)).to eq(false) }
+      it { expect(subject.send(:valid_http_method?)).to eq(false) }
     end
   end
 end

@@ -22,7 +22,7 @@ module Postgrest
       options: Responses::GetResponse # ?
     }.freeze
 
-    USER_AGENT = 'PostgREST Ruby Client'.freeze
+    USER_AGENT = 'PostgREST Ruby Client'
 
     attr_reader :request, :response, :query, :body, :headers, :http_method, :uri
 
@@ -44,7 +44,7 @@ module Postgrest
     end
 
     def call
-      raise InvalidHTTPMethod unless has_valid_http_method?
+      raise InvalidHTTPMethod unless valid_http_method?
 
       @response = Net::HTTP.start(uri.host, uri.port, use_ssl: use_ssl?) do |http|
         @request = create_request
@@ -77,7 +77,7 @@ module Postgrest
       nil
     end
 
-    def has_valid_http_method?
+    def valid_http_method?
       METHODS.keys.include?(http_method)
     end
   end

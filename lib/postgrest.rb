@@ -19,6 +19,8 @@ require 'postgrest/client'
 
 module Postgrest
   class MissingTableError < StandardError; end
+
   class InvalidHTTPMethod < ArgumentError; end
+
   class RequestError < StandardError; end
 end
