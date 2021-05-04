@@ -32,15 +32,23 @@ module Postgrest
       end
 
       def data
-        error ? [] : JSON.parse(response.body)
+        error ? [] : safe_json_parse(response.body)
       end
       alias as_json data
 
       def params
         {
           query: request.uri.query,
-          body: JSON.parse(request.body)
+          body: safe_json_parse(request.body)
         }
+      end
+
+      private
+
+      def safe_json_parse(json)
+        JSON.parse(json)
+      rescue TypeError, JSON::ParserError
+        {}
       end
     end
   end
