@@ -5,6 +5,8 @@ require 'json'
 
 module Postgrest
   class HTTP
+    class InvalidHTTPMethod < ArgumentError; end
+
     METHODS = {
       get: Net::HTTP::Get,
       post: Net::HTTP::Post,
@@ -20,24 +22,30 @@ module Postgrest
       options: Responses::GetResponse # ?
     }.freeze
 
+    USER_AGENT = 'PostgREST Ruby Client'.freeze
+
     attr_reader :request, :response, :query, :body, :headers, :http_method, :uri
 
     def initialize(uri:, query: {}, body: {}, headers: {}, http_method: :get)
       @uri = uri
       @body = body
       @headers = headers
-      @http_method = http_method
+      @http_method = http_method.to_sym
       @response = nil
       @request = nil
 
       uri.query = URI.encode_www_form(query)
     end
 
-    def update_query_params(new_value)
+    def update_query_params(new_value = {})
       @uri.query = URI.encode_www_form(new_value)
+    rescue NoMethodError
+      @uri.query
     end
 
     def call
+      raise InvalidHTTPMethod has_valid_http_method?
+
       @response = Net::HTTP.start(uri.host, uri.port, use_ssl: use_ssl?) do |http|
         @request = create_request
         http.request(request)
@@ -64,9 +72,13 @@ module Postgrest
 
     def add_headers(request)
       headers.each { |key, value| request[key] = value }
-      request['User-Agent'] = 'PostgREST Ruby Client'
+      request['User-Agent'] = USER_AGENT
 
       nil
+    end
+
+    def has_valid_http_method?
+      METHODS.keys.include?(http_method)
     end
   end
 end

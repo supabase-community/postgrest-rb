@@ -15,7 +15,7 @@ module Postgrest
     def from(table)
       raise MissingTableError if table.nil? || table.empty?
 
-      Builders::QueryBuilder.new(url: "#{@url}/#{table}", headers: headers, schema: schema)
+      Builders::QueryBuilder.new(url: "#{url}/#{table}", headers: headers, schema: schema)
     end
   end
 end
