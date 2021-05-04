@@ -1,2 +1,4 @@
-RSpec.describe Postgrest::Responses::GetResponse do
+module Postgrest
+  RSpec.describe Responses::GetResponse do
+  end
 end

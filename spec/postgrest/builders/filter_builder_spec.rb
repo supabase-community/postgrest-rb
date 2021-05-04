@@ -1,2 +1,4 @@
-RSpec.describe Postgrest::Builders::FilterBuilder do
+module Postgrest
+  RSpec.describe Builders::FilterBuilder do
+  end
 end
