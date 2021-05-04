@@ -30,9 +30,9 @@ module Postgrest
         BaseBuilder.new(request)
       end
 
-      def update(values)
+      def update(values, extra_headers: {})
         extra_headers[:Prefer] ||= 'return=representation'
-        request = HTTP.new(uri: uri, body: values, http_method: :put, headers: headers.merge(extra_headers))
+        request = HTTP.new(uri: uri, body: values, http_method: :patch, headers: headers.merge(extra_headers))
 
         FilterBuilder.new(request)
       end

@@ -2,7 +2,7 @@
 
 module Postgrest
   module Responses
-    class PutResponse < BaseResponse
+    class PatchResponse < BaseResponse
     end
   end
 end

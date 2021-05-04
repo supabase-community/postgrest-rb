@@ -11,6 +11,10 @@ module Postgrest
         @data = data
       end
 
+      def inspect
+        "\#<#{self.class} #{request.method} #{response.message} data=#{@data}>"
+      end
+
       def error
         !response.is_a?(Net::HTTPSuccess)
       end

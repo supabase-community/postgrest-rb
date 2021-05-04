@@ -5,19 +5,19 @@ require 'json'
 
 module Postgrest
   class HTTP
-    class InvalidHTTPMethod < ArgumentError; end
-
     METHODS = {
       get: Net::HTTP::Get,
       post: Net::HTTP::Post,
-      put: Net::HTTP::Put,
+      patch: Net::HTTP::Patch,
+      put: Net::HTTP::Patch,
       delete: Net::HTTP::Delete
     }.freeze
 
     RESPONSES = {
       get: Responses::GetResponse,
       post: Responses::PostResponse,
-      put: Responses::PutResponse,
+      put: Responses::PatchResponse,
+      patch: Responses::PatchResponse,
       delete: Responses::DeleteResponse,
       options: Responses::GetResponse # ?
     }.freeze
@@ -44,7 +44,7 @@ module Postgrest
     end
 
     def call
-      raise InvalidHTTPMethod has_valid_http_method?
+      raise InvalidHTTPMethod unless has_valid_http_method?
 
       @response = Net::HTTP.start(uri.host, uri.port, use_ssl: use_ssl?) do |http|
         @request = create_request
