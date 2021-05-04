@@ -44,12 +44,12 @@ db = Postgrest::Client.new(url: url, headers: headers, schema: schema)
 db.from('todos').select('*').execute
 # or just db.from('todos').select
 
-# #<Postgrest::Responses::GetResponse GET OK data=[{"id"=>1, "title"=>"foo", "completed"=>false}, {"id"=>2, "title"=>"foo", "completed"=>false}]>
+#<Postgrest::Responses::GetResponse GET OK data=[{"id"=>1, "title"=>"foo", "completed"=>false}, {"id"=>2, "title"=>"foo", "completed"=>false}]>
 
 # Selecting just one or more fields
 db.from('todos').select(:title).execute
 
-# #<Postgrest::Responses::GetResponse GET OK data=[{"title"=>"foo"}, {"title"=>"foo"}]>
+#<Postgrest::Responses::GetResponse GET OK data=[{"title"=>"foo"}, {"title"=>"foo"}]>
 
 ```
 
@@ -57,11 +57,11 @@ db.from('todos').select(:title).execute
 
 ```ruby
 db.from('todos').select('*').eq(id: 100).execute
-# #<Postgrest::Responses::GetResponse GET OK data=[{"id" => 100, "title"=>"foo", "completed" => true}}]>
+#<Postgrest::Responses::GetResponse GET OK data=[{"id" => 100, "title"=>"foo", "completed" => true}}]>
 
 
 db.from('todos').select('*').neq(id: 100).execute
-# #<Postgrest::Responses::GetResponse GET OK data=[{"id" => 101, "title"=>"foo", "completed" => true}}]>
+#<Postgrest::Responses::GetResponse GET OK data=[{"id" => 101, "title"=>"foo", "completed" => true}}]>
 ```
 
 ### Inserting
@@ -69,11 +69,11 @@ db.from('todos').select('*').neq(id: 100).execute
 ```ruby
 db.from('todos').insert(title: 'Go to the gym', completed: false).execute
 
-# #<Postgrest::Responses::PostResponse POST Created data=[{"id"=>1, "title"=>"Go to the gym", "completed"=>false}]>
+#<Postgrest::Responses::PostResponse POST Created data=[{"id"=>1, "title"=>"Go to the gym", "completed"=>false}]>
 
 db.from('todos').upsert(id: 1, title: 'Ok, I wont go to the gym', completed: true).execute
 
-# #<Postgrest::Responses::PostResponse POST Created data=[{"id"=>1, "title"=>"Ok, I wont go to the gym", "completed"=>true}]>
+#<Postgrest::Responses::PostResponse POST Created data=[{"id"=>1, "title"=>"Ok, I wont go to the gym", "completed"=>true}]>
 
 # Inserting multiple rows at once
 db.from('todos').insert([
@@ -81,7 +81,7 @@ db.from('todos').insert([
   { title: 'Walk in the park', completed: true },
 ]).execute
 
-# #<Postgrest::Responses::PostResponse POST Created data=[{"id"=>110, "title"=>"Go to the gym", "completed"=>false}, {"id"=>111, "title"=>"Walk in the park", "completed"=>true}]>
+#<Postgrest::Responses::PostResponse POST Created data=[{"id"=>110, "title"=>"Go to the gym", "completed"=>false}, {"id"=>111, "title"=>"Walk in the park", "completed"=>true}]>
 
 ```
 
@@ -93,13 +93,13 @@ db.from('todos').insert([
 
 db.from('todos').update(title: 'foobar').eq(id: 109).execute
 
-# #<Postgrest::Responses::PatchResponse PATCH OK data=[{"id"=>106, "title"=>"foo", "completed"=>false}]>
+#<Postgrest::Responses::PatchResponse PATCH OK data=[{"id"=>106, "title"=>"foo", "completed"=>false}]>
 
 # Update all rows
 
 db.from('todos').update(title: 'foobar').execute
 
-# #<Postgrest::Responses::PatchResponse PATCH OK data=[{"id"=>107, "title"=>"foobar", "completed"=>false}, {"id"=>1, "title"=>"foobar", "completed"=>true}, {"id"=>110, "title"=>"foobar", "completed"=>false}, {"id"=>111, "title"=>"foobar", "completed"=>true}, {"id"=>106, "title"=>"foobar", "completed"=>false}]>
+#<Postgrest::Responses::PatchResponse PATCH OK data=[{"id"=>107, "title"=>"foobar", "completed"=>false}, {"id"=>1, "title"=>"foobar", "completed"=>true}, {"id"=>110, "title"=>"foobar", "completed"=>false}, {"id"=>111, "title"=>"foobar", "completed"=>true}, {"id"=>106, "title"=>"foobar", "completed"=>false}]>
 ```
 
 ### Deleting
@@ -108,7 +108,7 @@ db.from('todos').update(title: 'foobar').execute
 # Querying before delete
 
 db.from('todos').delete.eq(id: 109).execute
-# #<Postgrest::Responses::DeleteResponse DELETE OK data=[{"id"=>109, "title"=>"Go to the gym", "completed"=>false}]>
+#<Postgrest::Responses::DeleteResponse DELETE OK data=[{"id"=>109, "title"=>"Go to the gym", "completed"=>false}]>
 
 # OR deleting everything
 
