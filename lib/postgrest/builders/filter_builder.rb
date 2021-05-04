@@ -3,8 +3,6 @@
 module Postgrest
   module Builders
     class FilterBuilder < BaseBuilder
-      attr_accessor :inverse_next
-
       def initialize(http)
         super
         @inverse_next = false
@@ -15,24 +13,32 @@ module Postgrest
         ilike fts plfts phfts wfts
       ].each do |method_name|
         define_method(method_name) do |values|
-          query = begin
-            URI.decode_www_form(http.uri.query)
-          rescue StandardError
-            []
-          end
-
-          word = inverse_next ? "not.#{method_name}" : method_name
-          @inverse_next = false
-          values.each { |key, value| query << [key, "#{word}.#{value}"] }
+          query = URI.decode_www_form(http.uri.query)
+          values.each { |key, value| query << [key, "#{method_key(method_name)}.#{value}"] }
+          reset_inverse_next
           http.update_query_params(query)
 
           self
         end
       end
 
+      def query
+        http.uri.query
+      end
+
       def not
-        @inverse_next = true
+        @inverse_next = !@inverse_next
         self
+      end
+
+      private
+
+      def reset_inverse_next
+        @inverse_next = false
+      end
+
+      def method_key(name)
+        @inverse_next ? "not.#{name}" : name
       end
     end
   end
