@@ -66,12 +66,12 @@ module Postgrest
       end
 
       def limit(number = 0)
-        decoded_query["limit"] = number
+        decoded_query['limit'] = number
         self
       end
 
       def offset(number = 0)
-        decoded_query["offset"] = number
+        decoded_query['offset'] = number
         self
       end
 
