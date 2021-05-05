@@ -53,6 +53,15 @@ db.from('todos').select(:title).execute
 
 ```
 
+#### Renaming a column name
+
+You have the ability to alias the name of the column you want doing as follows:
+
+```ruby
+db.from('todos').select('name:title').eq(id: 112).execute
+#<Postgrest::Responses::GetResponse GET OK data=[{"name"=>"Go to the gym"}]>
+```
+
 ### Querying
 
 ```ruby
@@ -62,6 +71,22 @@ db.from('todos').select('*').eq(id: 100).execute
 
 db.from('todos').select('*').neq(id: 100).execute
 #<Postgrest::Responses::GetResponse GET OK data=[{"id" => 101, "title"=>"foo", "completed" => true}}]>
+```
+
+### Ordering
+
+TODO
+
+### Relationships
+
+TODO
+
+### Full query example
+
+```ruby
+db.from('todos').select(:id, :title).owners(:name, as: :owner).workers(:name, as: :worker).in(id: [112, 113]).order(id: :asc).execute
+
+#<Postgrest::Responses::GetResponse GET OK data=[{"id"=>112, "title"=>"Eat something", "owner"=>{"name"=>"Marcelo"}, "worker"=>{"name"=>"Marcelo"}}, {"id"=>113, "title"=>"Go to the gym", "owner"=>{"name"=>"Marcelo"}, "worker"=>nil}]>
 ```
 
 ### Inserting

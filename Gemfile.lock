@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    postgrest (0.2.0)
+    postgrest (0.3.0)
 
 GEM
   remote: https://rubygems.org/

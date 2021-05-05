@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'net/http'
+require 'json'
+require 'cgi'
+
 require 'postgrest/version'
 
 # Builders
