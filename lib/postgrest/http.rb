@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'net/http'
-require 'json'
-
 module Postgrest
   class HTTP
     METHODS = {
@@ -57,7 +54,7 @@ module Postgrest
     private
 
     def decode_query_params(query_params)
-      URI.decode(URI.encode_www_form(query_params))
+      CGI.unescape(URI.encode_www_form(query_params))
     end
 
     def create_request

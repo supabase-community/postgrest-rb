@@ -7,8 +7,6 @@ AllCops:
 TargetRubyVersion: 2.5
 Style/Documentation:
   Enabled: false
-Lint/UriEscapeUnescape:
-  Enabled: false
 Style/MissingRespondToMissing:
   Enabled: false
 Naming/MethodParameterName:
