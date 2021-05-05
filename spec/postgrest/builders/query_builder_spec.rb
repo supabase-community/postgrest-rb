@@ -22,7 +22,7 @@ module Postgrest
           it 'returns an FilterBuilder instance' do
             instance = subject.select(:name, :age)
             expect(instance).to be_a(Builders::FilterBuilder)
-            expect(instance.query).to eq('select=name%2Cage')
+            expect(instance.query).to eq('select=name,age')
           end
         end
 

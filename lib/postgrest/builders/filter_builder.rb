@@ -7,6 +7,7 @@ module Postgrest
 
       def initialize(http)
         super
+        @query =
         @inverse_next = false
       end
 
@@ -43,11 +44,19 @@ module Postgrest
       def method_missing(method_name, *columns)
         @options[method_name] ||= []
         @options[method_name] << columns
+
+        decoded_query['select'] += ",#{method_name}(#{columns.join(',')})"
+        http.update_query_params(decoded_query)
+
         self
       end
 
       def query
         http.uri.query
+      end
+
+      def decoded_query
+        @decoded_query ||= URI.decode_www_form(query).to_h
       end
 
       def limit(number = 0)
@@ -68,19 +77,17 @@ module Postgrest
       private
 
       def update_query(values:, method_name:)
-        query = URI.decode_www_form(http.uri.query)
-
         values.each do |key, value|
           formatted_value = yield(key, value) if block_given?
           formatted_value ||= [key, "#{method_key(method_name)}.#{value}"]
 
-          query << formatted_value
+          decoded_query[key] = "#{method_key(method_name)}.#{value}"
           @options[method_name] ||= []
           @options[method_name] << formatted_value
         end
 
         reset_inverse_next
-        http.update_query_params(query)
+        http.update_query_params(decoded_query)
       end
 
       def reset_inverse_next
