@@ -3,26 +3,36 @@
 module Postgrest
   module Builders
     class FilterBuilder < BaseBuilder
-      before_execute :set_limit, :set_offset
+      before_execute :set_limit, :set_offset, :update_http_instance
+
+      SIMPLE_MATCHERS = %i[eq neq gt gte lt lte like is ilike fts plfts phfts wfts].freeze
+      RANGE_MATCHERS = %i[sl sr nxr nxl adj].freeze
 
       def initialize(http)
         super
-        @query =
         @inverse_next = false
       end
 
-      %i[
-        eq neq gt gte lt lte like is
-        ilike fts plfts phfts wfts
-      ].each do |method_name|
+      SIMPLE_MATCHERS.each do |method_name|
         define_method(method_name) do |values|
-          update_query(method_name: method_name, values: values)
+          transform_params(method_name: method_name, values: values)
+
+          self
+        end
+      end
+
+      RANGE_MATCHERS.each do |method_name|
+        define_method(method_name) do |values|
+          transform_params(method_name: method_name, values: values) do |key, value|
+            [key, "range=#{method_key(method_name)}.(#{value.join(',')})"]
+          end
+
           self
         end
       end
 
       def in(values = [])
-        update_query(method_name: __method__, values: values) do |key, value|
+        transform_params(method_name: __method__, values: values) do |key, value|
           [key, "#{method_key(__method__)}.(#{value.join(',')})"]
         end
 
@@ -30,10 +40,9 @@ module Postgrest
       end
 
       def order(values)
-        update_query(method_name: __method__, values: values) do |key, value|
+        transform_params(method_name: __method__, values: values) do |key, value|
           asc = value.to_sym != :desc
-          asc = !asc if @inverse_next
-          reset_inverse_next
+          asc = !asc if should_invert?
 
           [__method__, "#{key}.#{asc ? 'asc' : 'desc'}"]
         end
@@ -41,12 +50,9 @@ module Postgrest
         self
       end
 
-      def method_missing(method_name, *columns)
-        @options[method_name] ||= []
-        @options[method_name] << columns
-
-        decoded_query['select'] += ",#{method_name}(#{columns.join(',')})"
-        http.update_query_params(decoded_query)
+      def method_missing(method_name, *columns, as: nil)
+        decoded_query['select'] += as ? ",#{as}:#{method_name}" : ",#{method_name}"
+        decoded_query['select'] += columns.empty? ? '(*)' : "(#{columns.join(',')})"
 
         self
       end
@@ -60,12 +66,12 @@ module Postgrest
       end
 
       def limit(number = 0)
-        @limit = number
+        decoded_query["limit"] = number
         self
       end
 
       def offset(number = 0)
-        @offset = number
+        decoded_query["offset"] = number
         self
       end
 
@@ -76,42 +82,29 @@ module Postgrest
 
       private
 
-      def update_query(values:, method_name:)
-        values.each do |key, value|
-          formatted_value = yield(key, value) if block_given?
-          formatted_value ||= [key, "#{method_key(method_name)}.#{value}"]
-
-          decoded_query[key] = "#{method_key(method_name)}.#{value}"
-          @options[method_name] ||= []
-          @options[method_name] << formatted_value
-        end
-
-        reset_inverse_next
-        http.update_query_params(decoded_query)
+      def should_invert?
+        @inverse_next
       end
 
-      def reset_inverse_next
+      def transform_params(values:, method_name:)
+        values.each do |k, v|
+          key, value = yield(k, v) if block_given?
+          key ||= k
+          value ||= "#{method_key(method_name)}.#{v}"
+
+          decoded_query[key.to_s] = value
+        end
+
         @inverse_next = false
       end
 
       def method_key(name)
-        @inverse_next ? "not.#{name}" : name
+        should_invert? ? "not.#{name}" : name
       end
 
-      def set_offset
-        return unless @offset
-
-        update_query(values: [@offset], method_name: :offset) do
-          [:offset, @offset]
-        end
-      end
-
-      def set_limit
-        return unless @limit
-
-        update_query(values: [@limit], method_name: :limit) do
-          [:limit, @limit]
-        end
+      # Before execute callback
+      def update_http_instance
+        http.update_query_params(decoded_query)
       end
     end
   end

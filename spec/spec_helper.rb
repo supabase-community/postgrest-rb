@@ -1,6 +1,6 @@
-require "bundler/setup"
-require "postgrest"
-
+require 'bundler/setup'
+require 'postgrest'
+require 'pry'
 require 'simplecov'
 SimpleCov.start
 

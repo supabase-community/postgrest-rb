@@ -33,11 +33,11 @@ module Postgrest
       @http_method = http_method.to_sym
       @response = nil
       @request = nil
-      uri.query = decode_uri_query(query)
+      uri.query = decode_query_params(query)
     end
 
     def update_query_params(new_value = {})
-      @uri.query = decode_uri_query(new_value)
+      @uri.query = decode_query_params(new_value)
     rescue NoMethodError
       @uri.query
     end
@@ -56,7 +56,7 @@ module Postgrest
 
     private
 
-    def decode_uri_query(query_params)
+    def decode_query_params(query_params)
       URI.decode(URI.encode_www_form(query_params))
     end
 

@@ -81,6 +81,14 @@ TODO
 
 TODO
 
+### Full query example
+
+```ruby
+db.from('todos').select(:id, :title).owners(:name, as: :owner).workers(:name, as: :worker).in(id: [112, 113]).order(id: :asc).execute
+
+#<Postgrest::Responses::GetResponse GET OK data=[{"id"=>112, "title"=>"Eat something", "owner"=>{"name"=>"Marcelo"}, "worker"=>{"name"=>"Marcelo"}}, {"id"=>113, "title"=>"Go to the gym", "owner"=>{"name"=>"Marcelo"}, "worker"=>nil}]>
+```
+
 ### Inserting
 
 ```ruby
