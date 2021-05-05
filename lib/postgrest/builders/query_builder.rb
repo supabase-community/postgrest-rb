@@ -39,7 +39,7 @@ module Postgrest
 
       def delete(extra_headers: {})
         extra_headers[:Prefer] ||= 'return=representation'
-        request = HTTP.new(uri: uri, query: {}, http_method: :delete, headers: headers.merge(extra_headers))
+        request = HTTP.new(uri: uri, http_method: :delete, headers: headers.merge(extra_headers))
 
         FilterBuilder.new(request)
       end

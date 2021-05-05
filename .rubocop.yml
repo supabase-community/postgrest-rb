@@ -11,3 +11,5 @@ Lint/MissingSuper:
   Enabled: false
 Lint/UriEscapeUnescape:
   Enabled: false
+Style/MissingRespondToMissing:
+  Enabled: false
