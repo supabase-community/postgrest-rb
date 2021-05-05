@@ -4,6 +4,7 @@ AllCops:
   Exclude:
     - 'spec/**/*.rb'
     - 'bin/**/*'
+TargetRubyVersion: 2.5
 Style/Documentation:
   Enabled: false
 Lint/UriEscapeUnescape:
