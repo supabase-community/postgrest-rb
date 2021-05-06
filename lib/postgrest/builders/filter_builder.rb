@@ -3,7 +3,7 @@
 module Postgrest
   module Builders
     class FilterBuilder < BaseBuilder
-      before_execute :set_limit, :set_offset, :update_http_instance
+      before_execute :update_http_instance
 
       SIMPLE_MATCHERS = %i[eq neq gt gte lt lte like is ilike fts plfts phfts wfts].freeze
       RANGE_MATCHERS = %i[sl sr nxr nxl adj].freeze
