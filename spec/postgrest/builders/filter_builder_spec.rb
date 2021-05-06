@@ -10,7 +10,7 @@ module Postgrest
     end
 
     describe 'before execute hooks defined' do
-      it { expect(described_class.before_execute_hooks).to eq([:set_limit, :set_offset, :update_http_instance])}
+      it { expect(described_class.before_execute_hooks).to eq([:update_http_instance])}
     end
 
     describe 'attributes' do
