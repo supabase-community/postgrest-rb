@@ -3,6 +3,7 @@
 ## Status
 
 [![Build Status](https://api.travis-ci.com/marcelobarreto/postgrest-rb.svg?branch=master)](https://travis-ci.com/marcelobarreto/postgrest-rb)
+[![Gem Version](https://badge.fury.io/rb/postgrest.svg)](https://badge.fury.io/rb/postgrest)
 [![Code Climate](https://codeclimate.com/github/marcelobarreto/postgrest-rb.svg)](https://codeclimate.com/github/marcelobarreto/postgrest-rb)
 [![Code Climate](https://codeclimate.com/github/marcelobarreto/postgrest-rb/coverage.svg)](https://codeclimate.com/github/marcelobarreto/postgrest-rb)
 [![Ruby Style Guide](https://img.shields.io/badge/code_style-rubocop-brightgreen.svg)](https://github.com/rubocop/rubocop)
