@@ -11,6 +11,7 @@ module Postgrest
     before do
       allow(response).to receive(:is_a?).and_return(true)
       allow(response).to receive(:body).and_return(response_body)
+      allow(response).to receive(:[]).and_return({})
     end
 
     describe '#error' do
@@ -79,6 +80,26 @@ module Postgrest
         subject { described_class.new(request, response) }
 
         it { expect(subject.data).to eq({}) }
+      end
+
+      context 'when response body was compressed' do
+        subject { described_class.new(request, response) }
+
+        let(:response_body) do
+          data = { success: true, foo: :bar }.to_json
+          gz = Zlib::GzipWriter.new(StringIO.new)
+          gz << data
+          gz.close.string
+        end
+
+        before do
+          allow(response).to receive(:[]).with('content-encoding').and_return('gzip')
+          allow(response).to receive(:[]).with('content-range').and_return('0-999/*')
+        end
+
+        it 'decompresses the body' do
+          expect(subject.data).to eq({ 'success' => true, 'foo' => 'bar' })
+        end
       end
     end
 

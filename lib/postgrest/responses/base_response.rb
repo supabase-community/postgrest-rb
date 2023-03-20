@@ -32,7 +32,12 @@ module Postgrest
       end
 
       def data
-        error ? [] : safe_json_parse(response.body)
+        return [] if error
+
+        body = response.body
+        body = decompress(body) if compressed_body?
+
+        safe_json_parse(body)
       end
       alias as_json data
 
@@ -49,6 +54,16 @@ module Postgrest
         JSON.parse(json)
       rescue TypeError, JSON::ParserError
         {}
+      end
+
+      def decompress(body)
+        gz = Zlib::GzipReader.new(StringIO.new(body))
+        gz.read
+      end
+
+      def compressed_body?
+        # https://ruby-doc.org/3.2.1/stdlibs/net/Net/HTTP.html#class-Net::HTTP-label-Compression
+        response['content-encoding'] == 'gzip' && response['content-range']
       end
     end
   end
